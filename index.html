@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AI vs Human Number Guessing — Retro Robot Edition</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     /* ---------- Root / Theme ---------- */
     :root{
@@ -37,7 +38,7 @@
 
     /* ---------- Retro ASCII robot (SVG wrapper) ---------- */
     .robot-wrap{display:flex;justify-content:center;align-items:center}
-    .robot{width:180px;height:180px}
+    .robot{width:200px;height:auto}
     .robot .antenna{transform-origin:50% 0;animation:antenna 1.2s linear infinite}
     .robot .eye{animation:blink 3s infinite}
     @keyframes antenna{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
@@ -54,7 +55,12 @@
     /* ---------- Mobile tweaks ---------- */
     @media (max-width:880px){
       .game-grid{grid-template-columns:1fr;}
-      .robot{width:140px;height:140px}
+      .robot{width:160px}
+    }
+
+    /* small visual polish for screen */
+    .screen-glow {
+      filter: drop-shadow(0 0 8px rgba(34,170,255,0.18));
     }
   </style>
 </head>
@@ -86,49 +92,51 @@
             <button class="btn secondary" onclick="resetGame()">Try Again</button>
           </div>
 
-          <div id="history" style="margin-top:12px"></div>
+          <div id="history" aria-live="polite" style="margin-top:12px"></div>
         </div>
 
         <div>
-          <div class="card robot-wrap">
-            <!-- ASCII-style robot drawn as SVG for crisp animation -->
+          <div class="robot-wrap card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <!-- FIXED SVG ROBOT: antenna centered, larger screen, bigger eyes/mouth -->
             <svg class="robot" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Retro robot mascot">
               <!-- feet -->
               <rect x="42" y="150" width="20" height="8" rx="2" fill="#2b3f66" />
               <rect x="118" y="150" width="20" height="8" rx="2" fill="#2b3f66" />
 
               <!-- body -->
-              <rect x="30" y="42" width="120" height="92" rx="12" ry="12" fill="#c7d8ff" stroke="#2b3f66" stroke-width="2"/>
+              <rect x="30" y="42" width="120" height="95" rx="12" ry="12" fill="#c7d8ff" stroke="#2b3f66" stroke-width="2"/>
 
-              <!-- screen (darker panel for face) -->
-              <rect x="44" y="64" width="92" height="46" rx="6" ry="6" fill="#081221" />
+              <!-- screen (larger, darker panel for face) -->
+              <rect x="38" y="58" width="104" height="52" rx="6" ry="6" fill="#081221" class="screen-glow" />
 
-              <!-- eyes (circles centered nicely inside screen) -->
+              <!-- eyes (larger, centered) -->
               <g class="eye" fill="#7fe0ff">
-                <circle cx="72" cy="86" r="6"/>
-                <circle cx="108" cy="86" r="6"/>
-                <!-- small inner dots for pupils for extra character -->
-                <circle cx="72" cy="86" r="2" fill="#012630"/>
-                <circle cx="108" cy="86" r="2" fill="#012630"/>
+                <circle cx="66" cy="88" r="8"/>
+                <circle cx="114" cy="88" r="8"/>
+                <!-- pupils -->
+                <circle cx="66" cy="88" r="3" fill="#012630"/>
+                <circle cx="114" cy="88" r="3" fill="#012630"/>
               </g>
 
-              <!-- mouth (rounded rectangle) -->
-              <rect x="72" y="102" width="36" height="8" rx="3" fill="#9ee7ff" stroke="#063042" stroke-width="0.6"/>
+              <!-- mouth (moved up a bit) -->
+              <rect x="72" y="106" width="36" height="9" rx="3" fill="#9ee7ff" stroke="#063042" stroke-width="0.6"/>
 
-              <!-- decorative screen border lines (gives ASCII feel) -->
-              <g fill="none" stroke="#7fe0ff" stroke-opacity="0.08">
-                <line x1="50" y1="72" x2="130" y2="72" />
-                <line x1="50" y1="100" x2="130" y2="100" />
+              <!-- subtle scanlines for ASCII feel -->
+              <g fill="none" stroke="#7fe0ff" stroke-opacity="0.06">
+                <line x1="44" y1="68" x2="140" y2="68" />
+                <line x1="44" y1="88" x2="140" y2="88" />
+                <line x1="44" y1="108" x2="140" y2="108" />
               </g>
 
-              <!-- antenna (positioned above the center of the head) -->
-              <g class="antenna" transform="translate(90,32)">
-                <rect x="-2" y="0" width="4" height="20" fill="#2b3f66" />
-                <circle cx="0" cy="-6" r="5" fill="#ffde59" stroke="#2b3f66" stroke-width="1"/>
+              <!-- antenna (centered above the screen/head) -->
+              <!-- CENTER at x=90 (midpoint), y just above screen top (~58) -->
+              <g class="antenna" transform="translate(90,50)">
+                <rect x="-2" y="-18" width="4" height="18" fill="#2b3f66" />
+                <circle cx="0" cy="-22" r="5" fill="#ffde59" stroke="#2b3f66" stroke-width="1"/>
               </g>
             </svg>
           </div>
-        </div
+        </div>
       </div>
 
       <div class="card">
@@ -166,10 +174,6 @@
     </footer>
   </div>
 
-  <!-- Sounds (hosted free samples) -->
-  <audio id="tick" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg" preload="auto"></audio>
-  <audio id="ding" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
-
   <script>
     // ---------- Data set (your collected results) ----------
     const humanData = [9,7,7,7,6,8,5,10,7,6];
@@ -188,9 +192,6 @@
     // ---------- Dark toggle ----------
     function toggleDark(){ document.body.classList.toggle('dark'); }
 
-    // ---------- Sounds ----------
-    function playSound(name){ document.getElementById(name).currentTime=0; document.getElementById(name).play(); }
-
     // ---------- AI logic (synchronous loop with delay for demo) ----------
     let low, high, target, attempts, running;
 
@@ -200,44 +201,49 @@
       if(isNaN(val) || val<1 || val>100) return alert('Enter a number between 1 and 100 (or press Random Demo).');
       target = val; low = 1; high = 100; attempts=0; running=true;
       document.getElementById('history').innerHTML = '';
-      playSound('tick');
       loopGuess();
     }
 
     function loopGuess(){
       if(!running) return;
-      // bias: on very first attempt, pick 67 if full range (for kid-fun)
+
+      // compute guess (binary mid)
       let guess = Math.floor((low+high)/2);
       attempts++;
 
-      // thinking effect
+      // show thinking text
       const thinking = document.getElementById('thinking');
       thinking.textContent='AI thinking… ('+attempts+')';
 
       // small delay to animate
       setTimeout(()=>{
         if(guess===target){
-          playSound('ding');
+          // success
           document.getElementById('history').innerHTML += `<div>🎉 AI guessed <strong>${guess}</strong> in ${attempts} tries!</div>`;
-          // stop
           running=false; return;
         }
 
         if(guess<target){
-          low = guess+1; document.getElementById('history').innerHTML += `<div>${guess} → Too low</div>`;
+          low = guess+1;
+          document.getElementById('history').innerHTML += `<div>${guess} → Too low</div>`;
         } else {
-          high = guess-1; document.getElementById('history').innerHTML += `<div>${guess} → Too high</div>`;
+          high = guess-1;
+          document.getElementById('history').innerHTML += `<div>${guess} → Too high</div>`;
         }
 
         // continue or detect inconsistency
         if(low>high){
-          document.getElementById('history').innerHTML += `<div style="color:#c00">⚠️ Inconsistent answers — stopped.</div>`; running=false; return;
+          document.getElementById('history').innerHTML += `<div style="color:#c00">⚠️ Inconsistent answers — stopped.</div>`;
+          running=false; return;
         }
         loopGuess();
       },650);
     }
 
-    function resetGame(){ running=false; low=1; high=100; target=null; attempts=0; document.getElementById('history').innerHTML=''; document.getElementById('thinking').textContent=''; document.getElementById('numberInput').value=''; }
+    function resetGame(){
+      running=false; low=1; high=100; target=null; attempts=0;
+      document.getElementById('history').innerHTML=''; document.getElementById('thinking').textContent=''; document.getElementById('numberInput').value='';
+    }
 
     function randomizeNumber(){ const n = Math.floor(Math.random()*100)+1; document.getElementById('numberInput').value=n; }
 
@@ -270,5 +276,4 @@
   </script>
 </body>
 </html>
-
 
