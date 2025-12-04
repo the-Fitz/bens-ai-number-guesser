@@ -1,76 +1,202 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Number Guessing Game</title>
-    <meta charset="UTF-8" />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            padding: 40px;
-            max-width: 700px;
-            margin: auto;
-        }
-        h1 {
-            text-align: center;
-        }
-        .guess-box {
-            margin-top: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        button {
-            padding: 10px 20px;
-            margin-top: 10px;
-            font-size: 16px;
-        }
-        .history {
-            margin-top: 20px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        .correct {
-            color: green;
-            font-weight: bold;
-        }
-        .error {
-            color: red;
-        }
-        .joke {
-            color: purple;
-            font-weight: bold;
-        }
-    </style>
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI vs Human Number Guessing</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: "Comic Sans MS", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      transition: background 0.4s, color 0.4s;
+      margin: 0;
+      padding: 20px;
+    }
 
+    :root {
+      --bg: #f2f7ff;
+      --fg: #000;
+      --card: #ffffff;
+    }
+    .dark {
+      --bg: #0d1117;
+      --fg: #e6edf3;
+      --card: #161b22;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      margin-bottom: 25px;
+    }
+
+    #thinking {
+      font-style: italic;
+      opacity: 0.7;
+      min-height: 24px;
+      margin-bottom: 10px;
+    }
+
+    .toggle {
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      background: #4aa3ff;
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    .guess-btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      background: #ff7b4a;
+      color: white;
+      font-size: 1rem;
+      margin-left: 5px;
+    }
+
+    #history {
+      font-size: 1.1rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
 <body>
 
-<h1>AI Number Guessing Game</h1>
+  <h1>🤖 AI vs Human Number Guessing 🎮</h1>
 
-<div class="guess-box">
-    <p id="status">Think of a number between 1 and 100.</p>
+  <button id="darkToggle" class="toggle">🌙 Dark Mode</button>
 
-    <button onclick="startGame()">Start Game</button>
+  <!-- AI Guessing Game Section -->
+  <div class="card">
+    <h2>AI Guessing Your Number</h2>
+    <div id="thinking"></div>
+    <input id="numberInput" type="number" placeholder="Think of a number 1–100" />
+    <button class="guess-btn" onclick="startAI()">Start</button>
+    <div id="history"></div>
+    <audio id="ding" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+    <audio id="tick" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+  </div>
 
-    <div id="gameArea" style="display:none;">
-        <p><strong>AI Guess:</strong> <span id="guess"></span></p>
-        <button onclick="tooLow()">Too Low</button>
-        <button onclick="tooHigh()">Too High</button>
-        <button onclick="correct()">Correct!</button>
-    </div>
-</div>
+  <!-- Comparison Chart Section -->
+  <div class="card">
+    <h2>📊 Humans vs AI Score Comparison</h2>
+    <canvas id="compareChart" width="400" height="200"></canvas>
+  </div>
 
-<div class="history">
-    <h3>Guess History</h3>
-    <ul id="historyList"></ul>
-</div>
+  <script>
+    /****************************
+     * DARK MODE
+     ***************************/
+    document.getElementById("darkToggle").onclick = () => {
+      document.body.classList.toggle("dark");
+    };
 
+    /****************************
+     * AI THINKING EFFECT
+     ***************************/
+    function typeText(el, text, speed = 40) {
+      el.textContent = "";
+      let i = 0;
+      let interval = setInterval(() => {
+        el.textContent += text[i];
+        i++;
+        if (i >= text.length) clearInterval(interval);
+      }, speed);
+    }
+
+    /****************************
+     * AI GUESSING
+     ***************************/
+    let low, high, attempts;
+
+    function startAI() {
+      const ding = document.getElementById("ding");
+      const tick = document.getElementById("tick");
+      let target = parseInt(document.getElementById("numberInput").value);
+      if (!target || target < 1 || target > 100) return alert("Enter 1–100");
+
+      low = 1;
+      high = 100;
+      attempts = 0;
+      document.getElementById("history").innerHTML = "";
+
+      function guessLoop() {
+        let guess = Math.floor((low + high) / 2);
+        attempts++;
+
+        tick.play();
+        typeText(document.getElementById("thinking"), `AI thinking… 🤔 (${attempts})`);
+
+        setTimeout(() => {
+          if (guess === target) {
+            ding.play();
+            document.getElementById("history").innerHTML += `<div>🎉 AI guessed ${guess} in ${attempts} tries!</div>`;
+            return;
+          }
+
+          if (guess < target) {
+            low = guess + 1;
+            document.getElementById("history").innerHTML += `<div>${guess} → Too low</div>`;
+          } else {
+            high = guess - 1;
+            document.getElementById("history").innerHTML += `<div>${guess} → Too high</div>`;
+          }
+
+          guessLoop();
+        }, 700);
+      }
+
+      guessLoop();
+    }
+
+    /****************************
+     * CHART JS BAR GRAPH
+     ***************************/
+    const humanData = [9,7,7,7,6,8,5,10,7,6];
+    const aiData =    [7,3,7,5,7,4,6,7,5,3];
+
+    new Chart(document.getElementById("compareChart"), {
+      type: "bar",
+      data: {
+        labels: humanData.map((_, i) => `Round ${i+1}`),
+        datasets: [
+          {
+            label: "Humans",
+            data: humanData,
+            backgroundColor: "rgba(255, 99, 132, 0.6)",
+          },
+          {
+            label: "AI",
+            data: aiData,
+            backgroundColor: "rgba(54, 162, 235, 0.6)",
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
 </body>
-
-<script src="game.js"></script>
 </html>
-
 
