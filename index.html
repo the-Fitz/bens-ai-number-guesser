@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Number Guessing Game</title>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            padding: 40px;
+            max-width: 700px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .guess-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        .history {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+        }
+        .joke {
+            color: purple;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>AI Number Guessing Game</h1>
+
+<div class="guess-box">
+    <p id="status">Think of a number between 1 and 100.</p>
+
+    <button onclick="startGame()">Start Game</button>
+
+    <div id="gameArea" style="display:none;">
+        <p><strong>AI Guess:</strong> <span id="guess"></span></p>
+        <button onclick="tooLow()">Too Low</button>
+        <button onclick="tooHigh()">Too High</button>
+        <button onclick="correct()">Correct!</button>
+    </div>
+</div>
+
+<div class="history">
+    <h3>Guess History</h3>
+    <ul id="historyList"></ul>
+</div>
+
+</body>
+
+<script src="game.js"></script>
+</html>
+
