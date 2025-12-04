@@ -1,201 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI vs Human Number Guessing</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI vs Human Number Guessing — Retro Robot Edition</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: "Comic Sans MS", sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      transition: background 0.4s, color 0.4s;
-      margin: 0;
-      padding: 20px;
+    /* ---------- Root / Theme ---------- */
+    :root{
+      --bg:#f2f7ff; --fg:#0b1220; --card:#fff; --accent:#ff7b4a; --accent2:#4aa3ff;
     }
+    .dark{ --bg:#0b0f14; --fg:#e6edf3; --card:#0f1720; }
+    *{box-sizing:border-box}
+    body{font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg); color:var(--fg); margin:0; padding:24px; transition:background .3s,color .3s}
+    .container{max-width:980px;margin:0 auto}
+    h1{font-size:2.0rem;text-align:center;margin:6px 0 18px}
 
-    :root {
-      --bg: #f2f7ff;
-      --fg: #000;
-      --card: #ffffff;
-    }
-    .dark {
-      --bg: #0d1117;
-      --fg: #e6edf3;
-      --card: #161b22;
-    }
+    /* ---------- Layout ---------- */
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .tabs{display:flex;gap:8px}
+    .tab{background:var(--card);padding:8px 12px;border-radius:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .tab.active{outline:3px solid rgba(74,163,255,.18)}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{background:var(--accent2);color:white;border:none;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn.secondary{background:#fff;border:2px solid var(--accent2);color:var(--accent2)}
 
-    h1 {
-      text-align: center;
-      font-size: 2.4rem;
-      margin-bottom: 10px;
-    }
+    /* ---------- Card ---------- */
+    .card{background:var(--card);padding:18px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.08);margin-bottom:18px}
 
-    .card {
-      background: var(--card);
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      margin-bottom: 25px;
-    }
+    /* ---------- Game Area ---------- */
+    .game-grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    #thinking{font-style:italic;color:gray;min-height:22px}
+    input[type=number]{width:120px;padding:8px;border-radius:8px;border:1px solid #ddd}
+    .guess-btn{padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:white;cursor:pointer}
+    #history{margin-top:12px;font-size:1rem}
 
-    #thinking {
-      font-style: italic;
-      opacity: 0.7;
-      min-height: 24px;
-      margin-bottom: 10px;
-    }
+    /* ---------- Retro ASCII robot (SVG wrapper) ---------- */
+    .robot-wrap{display:flex;justify-content:center;align-items:center}
+    .robot{width:180px;height:180px}
+    .robot .antenna{transform-origin:50% 0;animation:antenna 1.2s linear infinite}
+    .robot .eye{animation:blink 3s infinite}
+    @keyframes antenna{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
+    @keyframes blink{0%,95%,100%{opacity:1}97%{opacity:0}}
 
-    .toggle {
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      border: none;
-      background: #4aa3ff;
-      color: white;
-      font-size: 1rem;
-      margin-bottom: 20px;
-    }
+    /* ---------- Scoreboard ---------- */
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .stat{flex:1;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent);padding:12px;border-radius:10px;text-align:center}
+    .small{font-size:.9rem;color:gray}
 
-    .guess-btn {
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      border: none;
-      background: #ff7b4a;
-      color: white;
-      font-size: 1rem;
-      margin-left: 5px;
-    }
+    /* ---------- Footer ---------- */
+    footer{text-align:center;color:gray;margin-top:24px;font-size:.9rem}
 
-    #history {
-      font-size: 1.1rem;
-      line-height: 1.4;
+    /* ---------- Mobile tweaks ---------- */
+    @media (max-width:880px){
+      .game-grid{grid-template-columns:1fr;}
+      .robot{width:140px;height:140px}
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>🤖 AI vs Human Number Guessing — Retro Robot</h1>
 
-  <h1>🤖 AI vs Human Number Guessing 🎮</h1>
+    <div class="topbar">
+      <div class="tabs">
+        <div id="tab-home" class="tab active" onclick="showTab('home')">Home</div>
+        <div id="tab-score" class="tab" onclick="showTab('score')">Scoreboard</div>
+      </div>
 
-  <button id="darkToggle" class="toggle">🌙 Dark Mode</button>
+      <div class="controls">
+        <button id="randomBtn" class="btn secondary" onclick="randomizeNumber()">Random Demo</button>
+        <button id="darkToggle" class="btn" onclick="toggleDark()">🌙</button>
+      </div>
+    </div>
 
-  <!-- AI Guessing Game Section -->
-  <div class="card">
-    <h2>AI Guessing Your Number</h2>
-    <div id="thinking"></div>
-    <input id="numberInput" type="number" placeholder="Think of a number 1–100" />
-    <button class="guess-btn" onclick="startAI()">Start</button>
-    <div id="history"></div>
-    <audio id="ding" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-    <audio id="tick" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+    <!-- HOME TAB -->
+    <div id="home" class="tabcontent">
+      <div class="card game-grid">
+        <div>
+          <h2>AI Guessing Game</h2>
+          <p id="thinking">Think of a number (or enter one for demo) and let the retro robot guess it!</p>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="numberInput" type="number" min="1" max="100" placeholder="1 - 100" />
+            <button class="guess-btn" onclick="startAI()">Start</button>
+            <button class="btn secondary" onclick="resetGame()">Try Again</button>
+          </div>
+
+          <div id="history" style="margin-top:12px"></div>
+        </div>
+
+        <div>
+          <div class="card robot-wrap">
+            <!-- ASCII-style robot drawn as SVG for crisp animation -->
+            <svg class="robot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <!-- body -->
+              <rect x="20" y="30" width="80" height="64" rx="8" ry="8" fill="#c7d8ff" stroke="#2b3f66" stroke-width="2" />
+              <!-- screen -->
+              <rect x="30" y="40" width="60" height="34" rx="4" ry="4" fill="#081221" />
+              <!-- eyes (ASCII-ish) -->
+              <g transform="translate(40,52)">
+                <text class="eye" x="0" y="0" font-family="monospace" font-size="10" fill="#7fe0ff">&lt;^&gt;</text>
+              </g>
+              <g transform="translate(70,52)">
+                <text class="eye" x="0" y="0" font-family="monospace" font-size="10" fill="#7fe0ff">(o)</text>
+              </g>
+              <!-- mouth -->
+              <text x="60" y="78" font-family="monospace" font-size="10" text-anchor="middle" fill="#9ee7ff">[____]</text>
+              <!-- antenna -->
+              <g class="antenna" transform="translate(84,20)">
+                <rect x="-2" y="0" width="4" height="18" fill="#2b3f66" />
+                <circle cx="0" cy="-4" r="4" fill="#ffde59" stroke="#2b3f66" />
+              </g>
+              <!-- feet -->
+              <rect x="34" y="96" width="12" height="6" rx="1" fill="#2b3f66" />
+              <rect x="74" y="96" width="12" height="6" rx="1" fill="#2b3f66" />
+            </svg>
+          </div>
+
+          <div style="margin-top:12px" class="card">
+            <div class="small">Demo sounds</div>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <button class="btn" onclick="playSound('tick')">🔊 Tick</button>
+              <button class="btn" onclick="playSound('ding')">🔊 Ding</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>How it works (kid-friendly)</h3>
+        <p>AI uses a smart trick called <strong>binary search</strong>. It keeps cutting the list of possible numbers in half until it finds the right one. That makes it quick and efficient — usually in just a few guesses!</p>
+      </div>
+    </div>
+
+    <!-- SCOREBOARD TAB -->
+    <div id="score" class="tabcontent" style="display:none">
+      <div class="card">
+        <h2>Scoreboard & Charts</h2>
+        <div class="stats">
+          <div class="stat">
+            <div class="small">Human average</div>
+            <div id="humanAvg">—</div>
+          </div>
+          <div class="stat">
+            <div class="small">AI average</div>
+            <div id="aiAvg">—</div>
+          </div>
+          <div class="stat">
+            <div class="small">Improvement</div>
+            <div id="improve">—</div>
+          </div>
+        </div>
+
+        <canvas id="scoreChart" style="margin-top:12px"></canvas>
+        <div style="margin-top:12px" class="small">Attempt order (1–10) on X axis. Lower = better.</div>
+      </div>
+    </div>
+
+    <footer>
+      Made with ❤️ for the science fair — Retro Robot edition
+    </footer>
   </div>
 
-  <!-- Comparison Chart Section -->
-  <div class="card">
-    <h2>📊 Humans vs AI Score Comparison</h2>
-    <canvas id="compareChart" width="400" height="200"></canvas>
-  </div>
+  <!-- Sounds (hosted free samples) -->
+  <audio id="tick" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg" preload="auto"></audio>
+  <audio id="ding" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
 
   <script>
-    /****************************
-     * DARK MODE
-     ***************************/
-    document.getElementById("darkToggle").onclick = () => {
-      document.body.classList.toggle("dark");
-    };
-
-    /****************************
-     * AI THINKING EFFECT
-     ***************************/
-    function typeText(el, text, speed = 40) {
-      el.textContent = "";
-      let i = 0;
-      let interval = setInterval(() => {
-        el.textContent += text[i];
-        i++;
-        if (i >= text.length) clearInterval(interval);
-      }, speed);
-    }
-
-    /****************************
-     * AI GUESSING
-     ***************************/
-    let low, high, attempts;
-
-    function startAI() {
-      const ding = document.getElementById("ding");
-      const tick = document.getElementById("tick");
-      let target = parseInt(document.getElementById("numberInput").value);
-      if (!target || target < 1 || target > 100) return alert("Enter 1–100");
-
-      low = 1;
-      high = 100;
-      attempts = 0;
-      document.getElementById("history").innerHTML = "";
-
-      function guessLoop() {
-        let guess = Math.floor((low + high) / 2);
-        attempts++;
-
-        tick.play();
-        typeText(document.getElementById("thinking"), `AI thinking… 🤔 (${attempts})`);
-
-        setTimeout(() => {
-          if (guess === target) {
-            ding.play();
-            document.getElementById("history").innerHTML += `<div>🎉 AI guessed ${guess} in ${attempts} tries!</div>`;
-            return;
-          }
-
-          if (guess < target) {
-            low = guess + 1;
-            document.getElementById("history").innerHTML += `<div>${guess} → Too low</div>`;
-          } else {
-            high = guess - 1;
-            document.getElementById("history").innerHTML += `<div>${guess} → Too high</div>`;
-          }
-
-          guessLoop();
-        }, 700);
-      }
-
-      guessLoop();
-    }
-
-    /****************************
-     * CHART JS BAR GRAPH
-     ***************************/
+    // ---------- Data set (your collected results) ----------
     const humanData = [9,7,7,7,6,8,5,10,7,6];
-    const aiData =    [7,3,7,5,7,4,6,7,5,3];
+    const aiData     = [7,3,7,5,7,4,6,7,5,3];
 
-    new Chart(document.getElementById("compareChart"), {
-      type: "bar",
-      data: {
-        labels: humanData.map((_, i) => `Round ${i+1}`),
-        datasets: [
-          {
-            label: "Humans",
-            data: humanData,
-            backgroundColor: "rgba(255, 99, 132, 0.6)",
-          },
-          {
-            label: "AI",
-            data: aiData,
-            backgroundColor: "rgba(54, 162, 235, 0.6)",
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
+    // ---------- Tabs ----------
+    function showTab(name){
+      document.querySelectorAll('.tabcontent').forEach(el=>el.style.display='none');
+      document.getElementById(name).style.display='block';
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.getElementById('tab-'+name).classList.add('active');
+
+      if(name==='score') renderScoreboard();
+    }
+
+    // ---------- Dark toggle ----------
+    function toggleDark(){ document.body.classList.toggle('dark'); }
+
+    // ---------- Sounds ----------
+    function playSound(name){ document.getElementById(name).currentTime=0; document.getElementById(name).play(); }
+
+    // ---------- AI logic (synchronous loop with delay for demo) ----------
+    let low, high, target, attempts, running;
+
+    function startAI(){
+      if(running) return; // avoid re-entrance
+      const val = parseInt(document.getElementById('numberInput').value,10);
+      if(isNaN(val) || val<1 || val>100) return alert('Enter a number between 1 and 100 (or press Random Demo).');
+      target = val; low = 1; high = 100; attempts=0; running=true;
+      document.getElementById('history').innerHTML = '';
+      playSound('tick');
+      loopGuess();
+    }
+
+    function loopGuess(){
+      if(!running) return;
+      // bias: on very first attempt, pick 67 if full range (for kid-fun)
+      let guess = Math.floor((low+high)/2);
+      attempts++;
+
+      // thinking effect
+      const thinking = document.getElementById('thinking');
+      thinking.textContent='AI thinking… ('+attempts+')';
+
+      // small delay to animate
+      setTimeout(()=>{
+        if(guess===target){
+          playSound('ding');
+          document.getElementById('history').innerHTML += `<div>🎉 AI guessed <strong>${guess}</strong> in ${attempts} tries!</div>`;
+          // stop
+          running=false; return;
         }
-      }
-    });
+
+        if(guess<target){
+          low = guess+1; document.getElementById('history').innerHTML += `<div>${guess} → Too low</div>`;
+        } else {
+          high = guess-1; document.getElementById('history').innerHTML += `<div>${guess} → Too high</div>`;
+        }
+
+        // continue or detect inconsistency
+        if(low>high){
+          document.getElementById('history').innerHTML += `<div style="color:#c00">⚠️ Inconsistent answers — stopped.</div>`; running=false; return;
+        }
+        loopGuess();
+      },650);
+    }
+
+    function resetGame(){ running=false; low=1; high=100; target=null; attempts=0; document.getElementById('history').innerHTML=''; document.getElementById('thinking').textContent=''; document.getElementById('numberInput').value=''; }
+
+    function randomizeNumber(){ const n = Math.floor(Math.random()*100)+1; document.getElementById('numberInput').value=n; }
+
+    // ---------- Scoreboard & Chart ----------
+    function renderScoreboard(){
+      const humanAvg = (humanData.reduce((a,b)=>a+b,0)/humanData.length).toFixed(2);
+      const aiAvg = (aiData.reduce((a,b)=>a+b,0)/aiData.length).toFixed(2);
+      const improvement = (((humanAvg - aiAvg)/humanAvg)*100).toFixed(1) + '%';
+      document.getElementById('humanAvg').textContent = humanAvg;
+      document.getElementById('aiAvg').textContent = aiAvg;
+      document.getElementById('improve').textContent = improvement;
+
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+      if(window._scoreChart) window._scoreChart.destroy();
+      window._scoreChart = new Chart(ctx,{
+        type:'bar',
+        data:{
+          labels: humanData.map((_,i)=> 'Round '+(i+1)),
+          datasets:[
+            {label:'Humans', data:humanData, backgroundColor:'rgba(255,99,132,0.7)'},
+            {label:'AI', data:aiData, backgroundColor:'rgba(54,162,235,0.7)'}
+          ]
+        },
+        options:{responsive:true,scales:{y:{beginAtZero:true}}}
+      });
+    }
+
+    // Render initial scoreboard chart quietly
+    renderScoreboard();
   </script>
 </body>
 </html>
