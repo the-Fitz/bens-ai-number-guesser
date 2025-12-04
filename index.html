@@ -92,43 +92,47 @@
         <div>
           <div class="card robot-wrap">
             <!-- ASCII-style robot drawn as SVG for crisp animation -->
-            <svg class="robot" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-              <!-- body -->
-              <rect x="20" y="30" width="80" height="64" rx="8" ry="8" fill="#c7d8ff" stroke="#2b3f66" stroke-width="2" />
-              <!-- screen -->
-              <rect x="30" y="40" width="60" height="34" rx="4" ry="4" fill="#081221" />
-              <!-- eyes (ASCII-ish) -->
-              <g transform="translate(40,52)">
-                <text class="eye" x="0" y="0" font-family="monospace" font-size="10" fill="#7fe0ff">&lt;^&gt;</text>
-              </g>
-              <g transform="translate(70,52)">
-                <text class="eye" x="0" y="0" font-family="monospace" font-size="10" fill="#7fe0ff">(o)</text>
-              </g>
-              <!-- mouth -->
-              <text x="60" y="78" font-family="monospace" font-size="10" text-anchor="middle" fill="#9ee7ff">[____]</text>
-              <!-- antenna -->
-              <g class="antenna" transform="translate(84,20)">
-                <rect x="-2" y="0" width="4" height="18" fill="#2b3f66" />
-                <circle cx="0" cy="-4" r="4" fill="#ffde59" stroke="#2b3f66" />
-              </g>
+            <svg class="robot" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Retro robot mascot">
               <!-- feet -->
-              <rect x="34" y="96" width="12" height="6" rx="1" fill="#2b3f66" />
-              <rect x="74" y="96" width="12" height="6" rx="1" fill="#2b3f66" />
+              <rect x="42" y="150" width="20" height="8" rx="2" fill="#2b3f66" />
+              <rect x="118" y="150" width="20" height="8" rx="2" fill="#2b3f66" />
+
+              <!-- body -->
+              <rect x="30" y="42" width="120" height="92" rx="12" ry="12" fill="#c7d8ff" stroke="#2b3f66" stroke-width="2"/>
+
+              <!-- screen (darker panel for face) -->
+              <rect x="44" y="64" width="92" height="46" rx="6" ry="6" fill="#081221" />
+
+              <!-- eyes (circles centered nicely inside screen) -->
+              <g class="eye" fill="#7fe0ff">
+                <circle cx="72" cy="86" r="6"/>
+                <circle cx="108" cy="86" r="6"/>
+                <!-- small inner dots for pupils for extra character -->
+                <circle cx="72" cy="86" r="2" fill="#012630"/>
+                <circle cx="108" cy="86" r="2" fill="#012630"/>
+              </g>
+
+              <!-- mouth (rounded rectangle) -->
+              <rect x="72" y="102" width="36" height="8" rx="3" fill="#9ee7ff" stroke="#063042" stroke-width="0.6"/>
+
+              <!-- decorative screen border lines (gives ASCII feel) -->
+              <g fill="none" stroke="#7fe0ff" stroke-opacity="0.08">
+                <line x1="50" y1="72" x2="130" y2="72" />
+                <line x1="50" y1="100" x2="130" y2="100" />
+              </g>
+
+              <!-- antenna (positioned above the center of the head) -->
+              <g class="antenna" transform="translate(90,32)">
+                <rect x="-2" y="0" width="4" height="20" fill="#2b3f66" />
+                <circle cx="0" cy="-6" r="5" fill="#ffde59" stroke="#2b3f66" stroke-width="1"/>
+              </g>
             </svg>
           </div>
-
-          <div style="margin-top:12px" class="card">
-            <div class="small">Demo sounds</div>
-            <div style="display:flex;gap:8px;margin-top:6px">
-              <button class="btn" onclick="playSound('tick')">🔊 Tick</button>
-              <button class="btn" onclick="playSound('ding')">🔊 Ding</button>
-            </div>
-          </div>
-        </div>
+        </div
       </div>
 
       <div class="card">
-        <h3>How it works (kid-friendly)</h3>
+        <h3>How it works</h3>
         <p>AI uses a smart trick called <strong>binary search</strong>. It keeps cutting the list of possible numbers in half until it finds the right one. That makes it quick and efficient — usually in just a few guesses!</p>
       </div>
     </div>
@@ -158,7 +162,7 @@
     </div>
 
     <footer>
-      Made with ❤️ for the science fair — Retro Robot edition
+      Made by Benjamin Larsen | Kirkland Ranch Science Showcase | 6th Grade | 2026
     </footer>
   </div>
 
